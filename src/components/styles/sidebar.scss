@@ -1,0 +1,24 @@
+.sidebar {
+    height: 100vh;
+    background-color: #343a40;
+    color: #fff;
+    position: fixed;
+    transition: width 0.3s;
+  
+    &.minimized {
+      width: 80px;
+    }
+  
+    &.expanded {
+      width: 250px;
+    }
+  }
+  
+  .button {
+    align-self: flex-end;
+  }
+  
+  .button.centered {
+    align-self: center;
+  }
+  
