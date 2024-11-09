@@ -1,6 +1,9 @@
 import { FormIntegration } from "@/app/dashboard/integration/list.props";
+import { ERROR_NULL_FIELD_REQUIRED } from "@/constants/error";
+import { GITHUB_TYPE, GITLAB_TYPE } from "@/constants/integration.type";
 import { useState } from "react";
 import { Button, Form, Modal } from "react-bootstrap";
+import { toast, ToastContainer } from "react-toastify";
 
 interface AddNewIntegrationModalProps {
     show: boolean;
@@ -9,10 +12,11 @@ interface AddNewIntegrationModalProps {
 }
 const AddNewIntegrationModal = ({show, onClose, onSave} : AddNewIntegrationModalProps) => {
     const [formData, setFormData] = useState<FormIntegration>({
-        type: '',
+        type: GITHUB_TYPE,
         name: '',
         personalToken: '',
       });
+
     
       const handleChange = (e : any) => {
         const { name, value } = e.target;
@@ -21,10 +25,20 @@ const AddNewIntegrationModal = ({show, onClose, onSave} : AddNewIntegrationModal
           [name]: value,
         }));
       };
-    
+      const handleTypeChange = (type: string) => {
+        setFormData((prevData) => ({
+          ...prevData,
+          type,
+        }));
+      };
+
       const handleSave = () => {
+        if (!formData.name || !formData.personalToken) {
+            toast.error(ERROR_NULL_FIELD_REQUIRED);
+            return
+        } 
         onSave(formData);
-        setFormData({ type: '', name: '', personalToken: '' }); // Reset form after save
+        setFormData({ type: GITHUB_TYPE, name: '', personalToken: '' }); // Reset form after save
         onClose();
       };
     
@@ -35,20 +49,36 @@ const AddNewIntegrationModal = ({show, onClose, onSave} : AddNewIntegrationModal
           </Modal.Header>
           <Modal.Body>
             <Form>
-              <Form.Group className="mb-3">
-                <Form.Label>Type</Form.Label>
-                <Form.Control
-                  as="select"
-                  name="type"
-                  value={formData.type}
-                  onChange={handleChange}
-                  required
-                >
-                  <option value="">Select Type</option>
-                  <option value="gitlab">GitLab</option>
-                  <option value="github">GitHub</option>
-                </Form.Control>
-              </Form.Group>
+            <Form.Group className="mb-3">
+        <Form.Label>Type</Form.Label>
+        <div className="d-flex">
+          
+          <Button
+            variant={formData.type === GITLAB_TYPE ? 'primary' : 'outline-primary'}
+            onClick={() => handleTypeChange(GITLAB_TYPE)}
+            className="me-2"
+          >
+            GitLab
+          </Button>
+          <Button
+              variant={formData.type === GITHUB_TYPE ? 'primary' : 'outline-primary'}
+              onClick={() => handleTypeChange(GITHUB_TYPE)}
+            >
+              GitHub
+            </Button>
+         
+        </div>
+
+        {/* Hidden input for form compatibility */}
+        <input
+          type="hidden"
+          name="type"
+          value={formData.type}
+          onChange={handleChange}
+          required
+        />
+      </Form.Group>
+
     
               <Form.Group className="mb-3">
                 <Form.Label>Name</Form.Label>
@@ -83,6 +113,7 @@ const AddNewIntegrationModal = ({show, onClose, onSave} : AddNewIntegrationModal
               Save
             </Button>
           </Modal.Footer>
+          <ToastContainer position="top-right" autoClose={3000} />
         </Modal>
       );
 }

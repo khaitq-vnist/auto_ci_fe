@@ -3,6 +3,7 @@ import DashboardSidebar from '@/components/dashboard/dashboard.sidebar';
 import React, { ReactNode, useState } from 'react';
 
 import { Container } from 'react-bootstrap';
+import { ToastContainer } from 'react-toastify';
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -27,6 +28,10 @@ const  DashboardLayout = ({ children } : DashboardLayoutProps) => {
       >
         {children}
       </Container>
+      <ToastContainer 
+       position="top-right"
+       autoClose={3000} 
+       />
     </div>
   );
 }

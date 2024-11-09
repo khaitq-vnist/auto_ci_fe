@@ -79,7 +79,7 @@ const IntegrationPage = () => {
         </Table>
        
             </Container>
-          
+           
         </DashboardLayout>
         
     )

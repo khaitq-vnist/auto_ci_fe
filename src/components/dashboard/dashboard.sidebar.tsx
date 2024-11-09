@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { Nav, Button } from 'react-bootstrap';
 import { FaChartPie, FaChartLine, FaFileAlt, FaCog } from 'react-icons/fa';
 import '../styles/sidebar.scss';
-import { ROUTER_DASHBOARD, ROUTER_DASHBOARD_INTEGRATION } from '@/constants/route';
+import { ROUTER_DASHBOARD, ROUTER_DASHBOARD_INTEGRATION, ROUTER_DASHBOARD_PROJECTS } from '@/constants/route';
 import { ToastContainer, toast, ToastPosition } from 'react-toastify';
 interface SidebarProps {
     isMinimized: boolean;
@@ -17,10 +17,7 @@ const DashboardSidebar = ({ isMinimized, toggleSidebar } : SidebarProps) =>{
     <div
     className={`sidebar ${isMinimized ? 'minimized' : 'expanded'}`}
     >
-       <ToastContainer 
-       position="top-right"
-       autoClose={3000} 
-       hideProgressBar />
+       
       <div className="d-flex flex-column align-items-center p-3">
         <Button
            variant="dark"
@@ -34,6 +31,12 @@ const DashboardSidebar = ({ isMinimized, toggleSidebar } : SidebarProps) =>{
             <Nav.Link href={`${ROUTER_DASHBOARD}`} className="d-flex align-items-center">
               <FaChartPie className="me-2" />
               {!isMinimized && 'Overview'}
+            </Nav.Link>
+          </Link>
+          <Link href={`${ROUTER_DASHBOARD_PROJECTS}`} legacyBehavior>
+            <Nav.Link href={`${ROUTER_DASHBOARD_PROJECTS}`} className="d-flex align-items-center">
+              <FaChartPie className="me-2" />
+              {!isMinimized && 'Projects'}
             </Nav.Link>
           </Link>
           <Link href={`${ROUTER_DASHBOARD_INTEGRATION}`} legacyBehavior >
