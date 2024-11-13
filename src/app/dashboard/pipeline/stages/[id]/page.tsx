@@ -28,13 +28,7 @@ const StageDetail = () => {
                     <Button variant="outline-primary" className="me-2">Services</Button>
                 </Nav.Item>
                 <Nav.Item>
-                    <Button variant="outline-primary" className="me-2">Cache</Button>
-                </Nav.Item>
-                <Nav.Item>
                     <Button variant="outline-primary" className="me-2">Variables</Button>
-                </Nav.Item>
-                <Nav.Item>
-                    <Button variant="outline-primary" className="me-2">Conditions</Button>
                 </Nav.Item>
                 <Nav.Item>
                     <Button variant="outline-primary" className="me-2">Options</Button>
