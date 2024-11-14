@@ -1,0 +1,1 @@
+export const PrefixIntegrationPathV1 = "/auto-ci-service/v1/integrations"

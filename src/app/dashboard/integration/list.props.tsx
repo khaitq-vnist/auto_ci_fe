@@ -1,27 +1,32 @@
 // src/types/IntegrationTypes.ts
 
 export interface Permissions {
-    admins?: string;
-    others?: string;
-    users?: string[];
-    groups?: string[];
-  }
-  
-  export interface Integration {
-    url?: string;
-    html_url?: string;
-    hash_id?: string;
-    name?: string;
-    type?: string;
-    scope?: string;
-    identifier?: string;
-    all_pipelines_allowed?: boolean;
-    permissions?: Permissions;
-    allowed_pipelines?: string[];
-  }
+  admins?: string;
+  others?: string;
+  users?: string[];
+  groups?: string[];
+}
 
-  export interface FormIntegration {
-    type: string;
-    name: string;
-    personalToken: string;
-  }
+export interface Integration {
+  id?: number;
+  name?: string;
+  scope?: string;
+}
+
+export interface FormIntegration {
+  type: string;
+  name: string;
+  personalToken: string;
+}
+
+// Define types for integration data
+export interface CreateIntegrationRequest {
+  integration_name: string;
+  provider_code: string;
+  access_token: string;
+}
+
+export interface IntegrationResponse {
+  code: number;
+  message: string;
+}
