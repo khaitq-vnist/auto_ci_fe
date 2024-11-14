@@ -40,6 +40,8 @@ const AddNewIntegrationModal = ({ show, onClose, onSave }: AddNewIntegrationModa
     }
     const createIntegration = async (req: CreateIntegrationRequest) => {
       let isSuccess = false
+      console.log(req)
+      console.log(req)
       try {
         const response = await integrationService.createIntegration(req);
         if (response.data.code === 200) {
