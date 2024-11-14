@@ -4,10 +4,8 @@ import React, { useState } from 'react';
 import { Row, Col, Card, Form, Button, Modal, Tab, Nav } from 'react-bootstrap';
 import { DragDropContext, Droppable, Draggable, DropResult } from 'react-beautiful-dnd';
 import { useYamlContext } from '../context/yaml.context';
-import { useRouter } from 'next/navigation';
 import { Stage } from '../props/pipeline.props';
 import StageDetailModal from './stages/detail.stage';
-
 
 const buildTools = [
     { name: 'Maven', version: '3.9.9' },
@@ -15,19 +13,25 @@ const buildTools = [
     { name: 'Ant', version: '1.10.11' }
 ];
 
-const ActionsTab: React.FC = () => {
+const ActionsTab = () => {
     const { yamlData, updateYamlField } = useYamlContext();
     const [showModal, setShowModal] = useState<boolean>(false);
     const [showStageDetailModal, setShowStageDetailModal] = useState<boolean>(false);
-    const [selectedStage, setSelectedStage] = useState<Stage | null>(null); // State for selected Stage
+    const [selectedStage, setSelectedStage] = useState<Stage | null>(null);
 
     const openModal = () => setShowModal(true);
     const closeModal = () => setShowModal(false);
 
     const openStageDetailModal = (stage: Stage) => {
-        setSelectedStage(stage); // Set selected stage data
+        setSelectedStage(stage);
         setShowStageDetailModal(true);
     };
+
+    const updateStages = (stage: Stage) => {
+        const updatedStages = yamlData.actions.map((s) => (s.id === stage.id ? stage : s));
+        updateYamlField("actions", updatedStages);
+    };
+
 
     const closeStageDetailModal = () => setShowStageDetailModal(false);
 
@@ -39,12 +43,9 @@ const ActionsTab: React.FC = () => {
             docker_image_tag: tool.version,
             setup_commands: ["apt-get update -y", "apt-get install -y wget"],
             execute_commands: [`${tool.name.toLowerCase()} clean install`],
-            variables: [{ key: "fileName", value: "ls.log" }],
+            variables: [],
             shell: "bash",
-            services: [
-                { type: "MYSQL", id: yamlData.actions.length * 2 + 1 },
-                { type: "MONGO_DB", id: yamlData.actions.length * 2 + 2 }
-            ]
+            services: []
         };
 
         updateYamlField("actions", [...yamlData.actions, newStage]);
@@ -54,6 +55,17 @@ const ActionsTab: React.FC = () => {
             openStageDetailModal(newStage);
         }
     };
+
+    const removeStage = (stageId: number) => {
+        const updatedStages = yamlData.actions.filter((stage) => stage.id !== stageId);
+        updateYamlField("actions", updatedStages);
+    };
+    const handleUpdateAStage = (stageId: number) => {
+        const existedStage = yamlData.actions.find((stage) => stage.id === stageId);
+        if (existedStage) {
+            openStageDetailModal(existedStage);
+        }
+    }
 
     const onDragEnd = (result: DropResult) => {
         const { source, destination } = result;
@@ -107,12 +119,12 @@ const ActionsTab: React.FC = () => {
                 </Modal.Body>
             </Modal>
 
-            {/* Pass selectedStage data to StageDetailModal */}
             {selectedStage && (
                 <StageDetailModal
                     show={showStageDetailModal}
                     handleClose={closeStageDetailModal}
-                    stage={selectedStage} // Pass selected stage data to modal
+                    stage={selectedStage}
+                    onSaveStage={updateStages}
                 />
             )}
 
@@ -136,7 +148,6 @@ const ActionsTab: React.FC = () => {
                                         <div
                                             ref={provided.innerRef}
                                             {...provided.draggableProps}
-                                            {...provided.draggableProps.style}
                                             style={{
                                                 padding: '10px',
                                                 backgroundColor: '#f8f9fa',
@@ -144,10 +155,32 @@ const ActionsTab: React.FC = () => {
                                                 borderRadius: '5px',
                                                 ...provided.draggableProps.style
                                             }}
+                                            onClick={() => handleUpdateAStage(stage.id)}
                                         >
                                             <div className="d-flex justify-content-between align-items-center">
-                                                <span>{stage.name}</span>
-                                                <Form.Check type="switch" label="Enable" />
+                                                <span {...provided.dragHandleProps}>{stage.name}</span>
+                                                                                        <div className="d-flex align-items-center">
+                                            <Form.Check 
+                                            onChange={(e) => stage.status = e.target.checked ? 'true' : 'false'}
+                                                type="switch" 
+                                                id={`enable-switch-${stage.id}`}
+                                                className="me-3" // Adds margin to the right for spacing
+                                                style={{
+                                                    width: '50px',
+                                                    height: '25px',
+                                                    backgroundColor: '#0d6efd',
+                                                    borderRadius: '20px'
+                                                }}
+                                            />
+                                            <Button
+                                                variant="danger"
+                                                size="sm"
+                                                onClick={() => removeStage(stage.id)}
+                                            >
+                                                Remove
+                                            </Button>
+                                        </div>
+
                                             </div>
                                         </div>
                                     )}

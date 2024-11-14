@@ -9,10 +9,10 @@ import { toast } from "react-toastify";
 const apiData: { integrations: Integration[] } = {
     integrations: [
       {
-        url: "https://api.buddy.works/workspaces/buddy/integrations/5fff3231277e1449d8eb3e6a",
-        html_url: "https://app.buddy.works/buddy/workspace/integrations",
+        url: "https://localhost/workspaces/buddy/integrations/5fff3231277e1449d8eb3e6a",
+        html_url: "https://localhost/buddy/workspace/integrations",
         hash_id: "5fff3231277e1449d8eb3e6a",
-        name: "Buddy AWS integration",
+        name: "AWS integration",
         type: "AMAZON",
         scope: "WORKSPACE",
         identifier: "my_aws_integration",

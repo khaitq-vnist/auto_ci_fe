@@ -1,6 +1,7 @@
 'use client'
 import ActionsTab from '@/components/dashboard/pipeline/actions/actions.tab';
 import { YamlProvider } from '@/components/dashboard/pipeline/context/yaml.context';
+import SettingsTab from '@/components/dashboard/pipeline/setting/tabs/setting.tab';
 import YamlTab from '@/components/dashboard/pipeline/yaml/yaml.tab';
 // PipelineBuilder.tsx
 
@@ -30,7 +31,10 @@ const PipelineBuilder: React.FC = () => {
                     <Tab eventKey="filesystem" title="Filesystem" />
                     <Tab eventKey="variables" title="Variables" />
                     <Tab eventKey="analytics" title="Analytics" />
-                    <Tab eventKey="settings" title="Settings" />
+                    <Tab eventKey="settings" title="Settings" >
+                        <SettingsTab />
+                    </Tab>
+
                     <Tab eventKey="yaml" title="YAML" >
                         <YamlTab />
                     </Tab>
