@@ -1,11 +1,9 @@
 'use client'
-import DashboardLayout from '@/layouts/dashboard.layout';
 // pages/projects.tsx
 
 import React, { useEffect, useState } from 'react';
 import { Container, Row, Col, Card, Button, Dropdown } from 'react-bootstrap';
 import { FiSearch } from 'react-icons/fi';
-import { FaGithub } from "react-icons/fa";
 
 // Define the project interface
 interface Project {
@@ -51,7 +49,7 @@ const fetchProjects = async (): Promise<Project[]> => {
     ];
 };
 
-const ProjectsPage = () => {
+const ProjectsCard = () => {
     const [projects, setProjects] = useState<Project[]>([]);
 
     useEffect(() => {
@@ -64,11 +62,34 @@ const ProjectsPage = () => {
     }, []);
 
     return (
-        <DashboardLayout>
-            <Container fluid style={{ padding: '20px' }}>
+        <Container fluid style={{ padding: '20px' }}>
             <div className="d-flex justify-content-between align-items-center mb-4">
                 <h2>Projects</h2>
                 <Button variant="primary">Add Project</Button>
+            </div>
+
+            <div className="d-flex mb-3">
+                <Button variant="outline-secondary" className="me-2">
+                    <FiSearch />
+                </Button>
+                <Dropdown className="me-2">
+                    <Dropdown.Toggle variant="outline-secondary" id="sort-dropdown">
+                        Sort
+                    </Dropdown.Toggle>
+                    <Dropdown.Menu>
+                        <Dropdown.Item href="#">Last Updated</Dropdown.Item>
+                        <Dropdown.Item href="#">Name</Dropdown.Item>
+                    </Dropdown.Menu>
+                </Dropdown>
+                <Dropdown>
+                    <Dropdown.Toggle variant="outline-secondary" id="filter-dropdown">
+                        Filter: Mine
+                    </Dropdown.Toggle>
+                    <Dropdown.Menu>
+                        <Dropdown.Item href="#">All</Dropdown.Item>
+                        <Dropdown.Item href="#">Mine</Dropdown.Item>
+                    </Dropdown.Menu>
+                </Dropdown>
             </div>
 
             <Row>
@@ -92,7 +113,11 @@ const ProjectsPage = () => {
                                     }}
                                 >
                                     {project.icon === 'github' ? (
-                                         <FaGithub style={{ width: '24px', height: '24px' }} />
+                                        <img
+                                            src="/github-icon.png" // Placeholder path for GitHub icon
+                                            alt="GitHub"
+                                            style={{ width: '24px', height: '24px' }}
+                                        />
                                     ) : (
                                         project.icon
                                     )}
@@ -109,8 +134,7 @@ const ProjectsPage = () => {
                 ))}
             </Row>
         </Container>
-        </DashboardLayout>
     );
 };
 
-export default ProjectsPage;
+export default ProjectsCard;
