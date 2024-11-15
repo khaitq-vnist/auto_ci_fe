@@ -5,6 +5,9 @@ import repositoryService from '@/utils/api/repository.service';
 import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Button, Nav, Dropdown, Spinner } from 'react-bootstrap';
 import { toast } from 'react-toastify';
+import { CreateProjectRequest } from './props';
+import projectService from '@/utils/api/project.service';
+import { useRouter } from 'next/navigation';
 
 interface Integration {
     id: number;
@@ -16,6 +19,8 @@ interface Repository {
     name: string;
     lastUpdate: string;
 }
+
+
 const timeAgoFromNoew = (unixTimestamp: number): string => {
     const secondsElapsed = Math.floor(Date.now() / 1000) - unixTimestamp;
     const minutesElapsed = Math.floor(secondsElapsed / 60);
@@ -37,9 +42,9 @@ const timeAgoFromNoew = (unixTimestamp: number): string => {
     }
 }
 
-const fetchRepositories = async (integrationId: number): Promise<Repository[]> => {
+const fetchRepositories = async (integration_id: number): Promise<Repository[]> => {
     try {
-        const resp = await repositoryService.getAllRepositoriesByIntegrationId(integrationId);
+        const resp = await repositoryService.getAllRepositoriesByintegration_id(integration_id);
         if (resp.status !== 200 || resp.data.code !== 200) {
             toast.error("Failed to fetch repositories");
             return [];
@@ -59,6 +64,7 @@ const fetchRepositories = async (integrationId: number): Promise<Repository[]> =
 };
 
 const CreateProjectPage: React.FC = () => {
+    const router = useRouter()
     const [integrations, setIntegrations] = useState<Integration[]>([]);
     const [integrationType, setIntegrationType] = useState<string | null>("GITHUB");
     const [selectedIntegration, setSelectedIntegration] = useState<Integration | null>(null);
@@ -82,7 +88,7 @@ const CreateProjectPage: React.FC = () => {
                         id: item.id,
                         name: item.integration_name,
                     }));
-                
+
                     setIntegrations(integrationData);
                     setSelectedIntegration(integrationData[0]); // Default to the first integration
                 }
@@ -98,7 +104,7 @@ const CreateProjectPage: React.FC = () => {
     // Fetch repositories when the selected integration changes
     useEffect(() => {
         if (selectedIntegration) {
-            
+
             const loadRepositories = async () => {
                 setLoadingRepositories(true);
                 const data = await fetchRepositories(selectedIntegration.id);
@@ -109,6 +115,31 @@ const CreateProjectPage: React.FC = () => {
             loadRepositories();
         }
     }, [selectedIntegration]);
+    const handleAddButton = (data: { integration_id: number; repo_id: number }) => {
+        const createProjects = async (req: CreateProjectRequest) => {
+            try {
+                const response = await projectService.createNewProjects(req);
+                if (response.data.code === 200) {
+                    toast.success("Integration created successfully!");
+                    router.push("/dashboard/projects")
+                } else {
+                    toast.error("Failed to create integration");
+                }
+            } catch (error) {
+                toast.error("Unexpected error while creating integration");
+            }
+        }
+        if (data.integration_id && data.repo_id) {
+            const req: CreateProjectRequest = {
+                integration_id: data.integration_id,
+                repo_id: data.repo_id,
+            };
+            createProjects(req);
+        } else {
+            toast.error("Invalid integration or repository selection");
+        }
+
+    };
 
     return (
         <DashboardLayout>
@@ -117,19 +148,19 @@ const CreateProjectPage: React.FC = () => {
 
                 {/* Integration Selection */}
                 <div className="my-3">
-                <Nav
-                    variant="tabs"
-                    activeKey={integrationType || "GITHUB"}
-                    onSelect={(selectedKey) => setIntegrationType(selectedKey)}
-                >
-                    <Nav.Item>
-                        <Nav.Link eventKey="GITHUB">GITHUB</Nav.Link>
-                    </Nav.Item>
-                    <Nav.Item>
-                        <Nav.Link eventKey="GITLAB">GITLAB</Nav.Link>
-                    </Nav.Item>
-                </Nav>
-            </div>
+                    <Nav
+                        variant="tabs"
+                        activeKey={integrationType || "GITHUB"}
+                        onSelect={(selectedKey) => setIntegrationType(selectedKey)}
+                    >
+                        <Nav.Item>
+                            <Nav.Link eventKey="GITHUB">GITHUB</Nav.Link>
+                        </Nav.Item>
+                        <Nav.Item>
+                            <Nav.Link eventKey="GITLAB">GITLAB</Nav.Link>
+                        </Nav.Item>
+                    </Nav>
+                </div>
 
                 {selectedIntegration && (
                     <>
@@ -170,6 +201,13 @@ const CreateProjectPage: React.FC = () => {
                                         >
                                             <Col>{repo.name}</Col>
                                             <Col className="text-muted">{repo.lastUpdate}</Col>
+                                            <Col className="text-muted">
+                                                <Button variant='primary' onClick={() =>
+                                                    handleAddButton({
+                                                        integration_id: selectedIntegration.id,
+                                                        repo_id: repo.id,
+                                                    })} > Add</Button>
+                                            </Col>
                                         </Row>
                                     ))
                                 ) : (
@@ -180,7 +218,7 @@ const CreateProjectPage: React.FC = () => {
                     </>
                 )}
             </Container>
-        </DashboardLayout>
+        </DashboardLayout >
     );
 };
 

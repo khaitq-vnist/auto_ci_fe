@@ -1,12 +1,12 @@
 'use client'
-import DashboardLayout from '@/layouts/dashboard.layout';
+import projectService from '@/utils/api/project.service';
+import { useRouter } from 'next/navigation';
 // pages/projects.tsx
 
 import React, { useEffect, useState } from 'react';
 import { Container, Row, Col, Card, Button, Dropdown } from 'react-bootstrap';
 import { FiSearch } from 'react-icons/fi';
-import { FaGithub } from "react-icons/fa";
-import { useRouter } from 'next/navigation';
+
 
 // Define the project interface
 interface Project {
@@ -16,64 +16,76 @@ interface Project {
     icon: string;
 }
 
-// Mock API call to get project data
+// Function to fetch projects using the real API
 const fetchProjects = async (): Promise<Project[]> => {
-    return [
-        {
-            id: 1,
-            name: 'demo_ci_cd',
-            lastActivity: '12 hours ago',
-            icon: 'K', // Placeholder for user's initial
-        },
-        {
-            id: 2,
-            name: 'auto_ci_fe',
-            lastActivity: '5 days ago',
-            icon: 'github', // Placeholder for GitHub icon
-        },
-        {
-            id: 3,
-            name: 'demo_ci_cd',
-            lastActivity: '5 days ago',
-            icon: 'github',
-        },
-        {
-            id: 4,
-            name: 'demo_ci_cd',
-            lastActivity: '5 days ago',
-            icon: 'github',
-        },
-        {
-            id: 5,
-            name: 'auto_ci_fe',
-            lastActivity: '5 days ago',
-            icon: 'github',
-        },
-    ];
+    try {
+        const response = await projectService.getAllProjects();
+        console.log("response: ", response)
+        if (response.status != 200) {
+            return []
+        }
+        const data = response.data.data;
+
+        // Transform API response to match the Project interface
+        return data.map((item: any) => ({
+            id: item.id,
+            name: item.name,
+            lastActivity: new Date(item.updated_at * 1000).toLocaleString(),
+            icon: item.full_name.includes('github') ? 'github' : item.name.charAt(0).toUpperCase(),
+        }));
+    } catch (error) {
+        console.error('Error fetching projects:', error);
+        return [];
+    }
 };
 
-const ProjectsPage = () => {
-    const router = useRouter();
+const ProjectsCard = () => {
+    const router = useRouter()
     const [projects, setProjects] = useState<Project[]>([]);
-    
+
     useEffect(() => {
-        // Fetch projects from the mock API
+        // Fetch projects from the API
         const getProjects = async () => {
             const data = await fetchProjects();
+            console.log("data: ", data)
             setProjects(data);
+            console.log("Project: ", projects)
         };
         getProjects();
     }, []);
-
-    const handleClickButtonAddNew = () => {
-        router.push('/dashboard/projects/new');
+    const handleOnClickButtonAddNew = () => {
+        router.push("/dashboard/projects/new")
     }
+
     return (
-        <DashboardLayout>
-            <Container fluid style={{ padding: '20px' }}>
+        <Container fluid style={{ padding: '20px' }}>
             <div className="d-flex justify-content-between align-items-center mb-4">
                 <h2>Projects</h2>
-                <Button variant="primary" onClick={handleClickButtonAddNew}>Add Project</Button>
+                <Button variant="primary" onClick={handleOnClickButtonAddNew}>Add Project</Button>
+            </div>
+
+            <div className="d-flex mb-3">
+                <Button variant="outline-secondary" className="me-2">
+                    <FiSearch />
+                </Button>
+                <Dropdown className="me-2">
+                    <Dropdown.Toggle variant="outline-secondary" id="sort-dropdown">
+                        Sort
+                    </Dropdown.Toggle>
+                    <Dropdown.Menu>
+                        <Dropdown.Item href="#">Last Updated</Dropdown.Item>
+                        <Dropdown.Item href="#">Name</Dropdown.Item>
+                    </Dropdown.Menu>
+                </Dropdown>
+                <Dropdown>
+                    <Dropdown.Toggle variant="outline-secondary" id="filter-dropdown">
+                        Filter: Mine
+                    </Dropdown.Toggle>
+                    <Dropdown.Menu>
+                        <Dropdown.Item href="#">All</Dropdown.Item>
+                        <Dropdown.Item href="#">Mine</Dropdown.Item>
+                    </Dropdown.Menu>
+                </Dropdown>
             </div>
 
             <Row>
@@ -97,7 +109,11 @@ const ProjectsPage = () => {
                                     }}
                                 >
                                     {project.icon === 'github' ? (
-                                         <FaGithub style={{ width: '24px', height: '24px' }} />
+                                        <img
+                                            src="/github-icon.png" // Placeholder path for GitHub icon
+                                            alt="GitHub"
+                                            style={{ width: '24px', height: '24px' }}
+                                        />
                                     ) : (
                                         project.icon
                                     )}
@@ -114,8 +130,7 @@ const ProjectsPage = () => {
                 ))}
             </Row>
         </Container>
-        </DashboardLayout>
     );
 };
 
-export default ProjectsPage;
+export default ProjectsCard;
