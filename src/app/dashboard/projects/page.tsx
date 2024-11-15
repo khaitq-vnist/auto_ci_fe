@@ -6,6 +6,7 @@ import React, { useEffect, useState } from 'react';
 import { Container, Row, Col, Card, Button, Dropdown } from 'react-bootstrap';
 import { FiSearch } from 'react-icons/fi';
 import { FaGithub } from "react-icons/fa";
+import { useRouter } from 'next/navigation';
 
 // Define the project interface
 interface Project {
@@ -52,8 +53,9 @@ const fetchProjects = async (): Promise<Project[]> => {
 };
 
 const ProjectsPage = () => {
+    const router = useRouter();
     const [projects, setProjects] = useState<Project[]>([]);
-
+    
     useEffect(() => {
         // Fetch projects from the mock API
         const getProjects = async () => {
@@ -63,12 +65,15 @@ const ProjectsPage = () => {
         getProjects();
     }, []);
 
+    const handleClickButtonAddNew = () => {
+        router.push('/dashboard/projects/new');
+    }
     return (
         <DashboardLayout>
             <Container fluid style={{ padding: '20px' }}>
             <div className="d-flex justify-content-between align-items-center mb-4">
                 <h2>Projects</h2>
-                <Button variant="primary">Add Project</Button>
+                <Button variant="primary" onClick={handleClickButtonAddNew}>Add Project</Button>
             </div>
 
             <Row>
