@@ -1,4 +1,5 @@
 'use client'
+import DashboardLayout from '@/layouts/dashboard.layout';
 import projectService from '@/utils/api/project.service';
 import { useRouter } from 'next/navigation';
 // pages/projects.tsx
@@ -90,8 +91,18 @@ const ProjectsCard = () => {
 
             <Row>
                 {projects.map((project) => (
-                    <Col xs={12} sm={6} md={4} lg={3} key={project.id} className="mb-4">
-                        <Card style={{ border: '1px solid #ddd', borderRadius: '8px' }}>
+                    <Col
+                        xs={12}
+                        sm={6}
+                        md={4}
+                        lg={3}
+                        key={project.id}
+                        className="mb-4"
+                    >
+                        <Card
+                            style={{ border: '1px solid #ddd', borderRadius: '8px', cursor: 'pointer' }}
+                            onClick={() => router.push(`projects/${project.id}/pipeline`)}
+                        >
                             <Card.Body className="d-flex align-items-center">
                                 <div
                                     style={{
@@ -128,7 +139,7 @@ const ProjectsCard = () => {
                         </Card>
                     </Col>
                 ))}
-            </Row>
+</Row>
         </Container>
     );
 };
