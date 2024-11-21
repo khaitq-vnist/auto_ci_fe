@@ -1,6 +1,8 @@
 'use client'
 import ActionsTab from '@/components/dashboard/pipeline/actions/actions.tab';
+import AnalysisTab from '@/components/dashboard/pipeline/analysis/analysis.tab';
 import { YamlProvider } from '@/components/dashboard/pipeline/context/yaml.context';
+import FileSystemTab from '@/components/dashboard/pipeline/filesystem/filesystem.tab';
 import SettingsTab from '@/components/dashboard/pipeline/setting/tabs/setting.tab';
 import YamlTab from '@/components/dashboard/pipeline/yaml/yaml.tab';
 // PipelineBuilder.tsx
@@ -24,13 +26,11 @@ const PipelineBuilder: React.FC = () => {
 
                 {/* Tabs for different sections */}
                 <Tabs id="pipeline-tabs" activeKey={key} onSelect={handleTabChange} className="mb-3">
-                    <Tab eventKey="runs" title="Runs" />
+                
                     <Tab eventKey="actions" title="Actions">
                         <ActionsTab />
                     </Tab>
-                    <Tab eventKey="filesystem" title="Filesystem" />
-                    <Tab eventKey="variables" title="Variables" />
-                    <Tab eventKey="analytics" title="Analytics" />
+                
                     <Tab eventKey="settings" title="Settings" >
                         <SettingsTab />
                     </Tab>
