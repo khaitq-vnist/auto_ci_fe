@@ -51,7 +51,7 @@ const fetchPipelineTemplate = async (buildTool: string): Promise<Pipeline> => {
 
 const PipelineStages: React.FC<{
     buildTool: string;
-    onPipelineChange: (pipeline: Pipeline) => void; // Callback to pass updated pipeline data
+    onPipelineChange: (pipeline: Pipeline) => void;
 }> = ({ buildTool, onPipelineChange }) => {
     const [pipeline, setPipeline] = useState<Pipeline | null>(null);
     const [expandedStageId, setExpandedStageId] = useState<number | null>(null);
@@ -67,7 +67,6 @@ const PipelineStages: React.FC<{
                 const template = await fetchPipelineTemplate(buildTool);
 
                 if (isMounted) {
-                    // Enable all stages by default
                     const enabledStages = template.stages.map((stage) => ({
                         ...stage,
                         type: 'enabled',
@@ -75,7 +74,6 @@ const PipelineStages: React.FC<{
                     const updatedPipeline = { ...template, stages: enabledStages };
                     setPipeline(updatedPipeline);
 
-                    // Pass the initial pipeline to the parent
                     onPipelineChange(updatedPipeline);
                 }
             } catch (err: any) {
@@ -99,6 +97,26 @@ const PipelineStages: React.FC<{
             ...pipeline,
             stages: pipeline.stages.map((stage) =>
                 stage.id === id ? { ...stage, [key]: value } : stage
+            ),
+        };
+
+        setPipeline(updatedPipeline);
+
+        onPipelineChange(updatedPipeline);
+    };
+
+    const removeVariable = (stageId: number, variableIndex: number) => {
+        if (!pipeline) return;
+
+        const updatedPipeline = {
+            ...pipeline,
+            stages: pipeline.stages.map((stage) =>
+                stage.id === stageId
+                    ? {
+                          ...stage,
+                          variables: stage.variables?.filter((_, index) => index !== variableIndex) || null,
+                      }
+                    : stage
             ),
         };
 
@@ -249,6 +267,14 @@ const PipelineStages: React.FC<{
                                                                     )
                                                                 }
                                                             />
+                                                            <Button
+                                                                variant="outline-danger"
+                                                                size="sm"
+                                                                className="mt-2"
+                                                                onClick={() => removeVariable(stage.id, index)}
+                                                            >
+                                                                Remove
+                                                            </Button>
                                                         </div>
                                                     ))}
                                                     <Button
@@ -265,21 +291,6 @@ const PipelineStages: React.FC<{
                                                     </Button>
                                                 </Card.Body>
                                             </Card>
-
-                                            {/* Services */}
-                                            {stage.services && (
-                                                <Card className="mb-3">
-                                                    <Card.Header>Services</Card.Header>
-                                                    <Card.Body>
-                                                        {stage.services.map((service, index) => (
-                                                            <div key={index} className="mb-3">
-                                                                <strong>Type:</strong> {service.type} <br />
-                                                                <strong>Version:</strong> {service.version}
-                                                            </div>
-                                                        ))}
-                                                    </Card.Body>
-                                                </Card>
-                                            )}
                                         </Card.Body>
                                     </Card>
                                 </div>

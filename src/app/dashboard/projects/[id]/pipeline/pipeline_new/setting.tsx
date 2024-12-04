@@ -1,21 +1,9 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Container, Form, ToggleButton, ButtonGroup, Table, Spinner } from 'react-bootstrap';
-import axios from 'axios';
-import { useParams, useSearchParams } from 'next/navigation';
+import { Container, Form, Table, Spinner } from 'react-bootstrap';
 import projectService from '@/utils/api/project.service';
-
-// Mock API to simulate fetching branch data
-const fetchBranchesMockApi = async (): Promise<{ branches: string[] }> => {
-    return new Promise((resolve) => {
-        setTimeout(() => {
-            resolve({
-                branches: ['main', 'develop', 'feature/new-feature', 'bugfix/fix-bug'],
-            });
-        }, 1000); // Simulate 1-second delay
-    });
-};
+import { useParams, useSearchParams } from 'next/navigation';
 
 interface PipelineSettings {
     name: string;
@@ -32,12 +20,13 @@ interface SettingsProps {
 const Settings: React.FC<SettingsProps> = ({ settings, onUpdateSettings }) => {
     const [localSettings, setLocalSettings] = useState<PipelineSettings>({
         ...settings,
-        scope: 'Branch', // Set default scope to "Branch"
+        scope: 'Branch', // Default scope to "Branch"
     });
     const [branchOptions, setBranchOptions] = useState<string[]>([]);
     const [loadingBranches, setLoadingBranches] = useState<boolean>(true);
+    const searchParams = useSearchParams();
     const params = useParams()
-    // Fetch branches when the page loads if the default scope is "Branch"
+
     useEffect(() => {
         if (localSettings.scope === 'Branch') {
             fetchBranches();
@@ -49,7 +38,6 @@ const Settings: React.FC<SettingsProps> = ({ settings, onUpdateSettings }) => {
         setLocalSettings(updatedSettings);
         onUpdateSettings(updatedSettings);
 
-        // Fetch branch list when code scope is set to "Branch"
         if (key === 'scope' && value === 'Branch') {
             fetchBranches();
         }
@@ -58,7 +46,7 @@ const Settings: React.FC<SettingsProps> = ({ settings, onUpdateSettings }) => {
     const fetchBranches = async (): Promise<void> => {
         try {
             setLoadingBranches(true);
-            const { id } = params // Get project ID from the query parameters
+            const {id} = params; // Get project ID from the query parameters
 
             if (!id) {
                 console.error('Project ID is missing in the query parameters.');
@@ -97,45 +85,28 @@ const Settings: React.FC<SettingsProps> = ({ settings, onUpdateSettings }) => {
             {/* Trigger */}
             <Form.Group className="mb-4">
                 <Form.Label className="fw-bold">Trigger</Form.Label>
-                <ButtonGroup className="d-flex">
-                    {['Manually', 'On events', 'On schedule'].map((trigger) => (
-                        <ToggleButton
-                            key={`trigger-${trigger}`}
-                            id={`trigger-${trigger}`}
-                            type="radio"
-                            variant="outline-primary"
-                            name="trigger"
-                            value={trigger}
-                            checked={localSettings.trigger === trigger}
-                            onChange={() => handleUpdate('trigger', trigger)}
-                            className="flex-fill"
-                        >
-                            {trigger}
-                        </ToggleButton>
-                    ))}
-                </ButtonGroup>
+                <Form.Select
+                    value={localSettings.trigger}
+                    onChange={(e) => handleUpdate('trigger', e.target.value)}
+                >
+                    <option value="Manually">Manually</option>
+                    <option value="On events">On events</option>
+                    <option value="On schedule">On schedule</option>
+                </Form.Select>
             </Form.Group>
 
             {/* Code Scope */}
             <Form.Group className="mb-4">
                 <Form.Label className="fw-bold">Code Scope</Form.Label>
-                <ButtonGroup className="d-flex">
-                    {['Branch', 'Tag', 'Wildcard', 'Codeless'].map((scope) => (
-                        <ToggleButton
-                            key={`scope-${scope}`}
-                            id={`scope-${scope}`}
-                            type="radio"
-                            variant="outline-primary"
-                            name="scope"
-                            value={scope}
-                            checked={localSettings.scope === scope}
-                            onChange={() => handleUpdate('scope', scope)}
-                            className="flex-fill"
-                        >
-                            {scope}
-                        </ToggleButton>
-                    ))}
-                </ButtonGroup>
+                <Form.Select
+                    value={localSettings.scope}
+                    onChange={(e) => handleUpdate('scope', e.target.value)}
+                >
+                    <option value="Branch">Branch</option>
+                    <option value="Tag">Tag</option>
+                    <option value="Wildcard">Wildcard</option>
+                    <option value="Codeless">Codeless</option>
+                </Form.Select>
             </Form.Group>
 
             {/* Branch Selection */}
