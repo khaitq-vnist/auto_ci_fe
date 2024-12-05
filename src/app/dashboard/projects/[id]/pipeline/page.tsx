@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { Table, Spinner, Container, Alert, Button, ButtonGroup } from 'react-bootstrap';
 import projectService from '@/utils/api/project.service';
 import { useParams, useRouter } from 'next/navigation';
+import { toast } from 'react-toastify';
 
 interface Pipeline {
     id: number;
@@ -42,10 +43,27 @@ const PipelinePage: React.FC = () => {
 
         fetchPipelines();
     }, []);
+    const runExecution = async (projectId: number, pipelineId : number) => {
+        try {
+            setLoading(true);
+            const response = await projectService.runExecution(projectId, pipelineId); // Replace with actual API function
 
+            if (response.status === 200 && response.data) {
+                // Handle successful
+                const executionId = response.data.data?.id ? response.data.data.id : 0;
+                if (executionId > 0) {
+                    router.push(`pipeline/${pipelineId}/executions/${executionId}`);
+                }
+            } else {
+                throw new Error('Failed to start pipeline execution');
+            }
+        } catch (err: any) {
+            toast.error(err.message || 'An error occurred while starting pipeline execution');
+        } 
+    }
     const handleRunPipeline = (pipelineId: number) => {
-        console.log(`Run Now clicked for Pipeline ID: ${pipelineId}`);
-        // Add API call or functionality to trigger the pipeline run
+       const {id} = params;
+         runExecution(Number(id), pipelineId);
     };
 
     const handleViewDetails = (pipelineId: number) => {

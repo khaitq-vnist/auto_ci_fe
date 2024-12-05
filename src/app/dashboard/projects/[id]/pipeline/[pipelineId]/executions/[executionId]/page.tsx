@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
-import { Container, Card, Spinner, Alert, Row, Col, Button } from 'react-bootstrap';
+import { Container, Card, Spinner, Alert, Row, Col, Button, Table } from 'react-bootstrap';
 import projectService from '@/utils/api/project.service';
 
 interface Branch {
@@ -99,28 +99,35 @@ const ExecutionDetailPage: React.FC = () => {
 
             {/* Execution Overview */}
             <Card style={{ marginBottom: '1.5rem' }}>
-                <Card.Body>
-                    <Row style={{ marginBottom: '0.5rem' }}>
-                        <Col>
-                            <strong>Status:</strong> {execution.status}
-                        </Col>
-                        <Col>
-                            <strong>Triggered On:</strong> {execution.triggered_on}
-                        </Col>
-                        <Col>
-                            <strong>Branch:</strong> {execution.branch.name} {execution.branch.default ? '(default)' : ''}
-                        </Col>
-                    </Row>
-                    <Row>
-                        <Col>
-                            <strong>Start Date:</strong> {formatDate(execution.start_date)}
-                        </Col>
-                        <Col>
-                            <strong>Finish Date:</strong> {formatDate(execution.finish_date)}
-                        </Col>
-                    </Row>
-                </Card.Body>
-            </Card>
+    <Card.Body>
+        <Table bordered>
+            <tbody>
+                <tr>
+                    <td><strong>Status:</strong></td>
+                    <td>{execution.status}</td>
+                </tr>
+                <tr>
+                    <td><strong>Triggered On:</strong></td>
+                    <td>{execution.triggered_on}</td>
+                </tr>
+                <tr>
+                    <td><strong>Branch:</strong></td>
+                    <td>
+                        {execution.branch.name} {execution.branch.default ? '(default)' : ''}
+                    </td>
+                </tr>
+                <tr>
+                    <td><strong>Start Date:</strong></td>
+                    <td>{formatDate(execution.start_date)}</td>
+                </tr>
+                <tr>
+                    <td><strong>Finish Date:</strong></td>
+                    <td>{formatDate(execution.finish_date)}</td>
+                </tr>
+            </tbody>
+        </Table>
+    </Card.Body>
+</Card>
 
             {/* Action Executions */}
             {execution.action_executions.map((actionExecution, index) => (

@@ -4,7 +4,20 @@ import React, { useState } from 'react';
 import { Container, Button } from 'react-bootstrap';
 import Settings from './setting';
 import PipelineStages from './pipeline_stage';
-
+interface StageRequest {
+    name: string;
+    type: string;
+    trigger_time: string;
+    shell: string;
+  }
+  
+  interface PipelineRequest {
+    name: string;
+    on: string;
+    refs: string[];
+    stages: StageRequest[];
+  }
+  
 const PipelineNew: React.FC = () => {
     const [settings, setSettings] = useState({
         name: 'Build application',
@@ -12,7 +25,7 @@ const PipelineNew: React.FC = () => {
         scope: 'Branch',
         branches: [],
     });
-    const [pipeline, setPipeline] = useState(null);
+    const [pipeline, setPipeline] = useState<{ stages: StageRequest[] } | null>(null);
 
     const handleSaveSettings = (updatedSettings: any) => {
         setSettings(updatedSettings);
@@ -25,6 +38,18 @@ const PipelineNew: React.FC = () => {
     const handleSavePipeline = () => {
         console.log('Pipeline Settings:', settings);
         console.log('Pipeline Stages:', pipeline);
+        const pipelineRequest: PipelineRequest = {
+            name: settings.name,
+            on: settings.trigger,
+            refs: settings.branches,
+            stages: pipeline?.stages?.map((stage: any) => ({
+                name: stage.name,
+                type: stage.type,
+                trigger_time: stage.trigger_time,
+                shell: stage.shell,
+            })) || [],
+        };
+        console.log('Pipeline Request:', pipelineRequest);
     };
 
     return (
