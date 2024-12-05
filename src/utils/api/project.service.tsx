@@ -18,5 +18,14 @@ const fetchPipelineTemplate = (buildTool: string) => {
 const fetchListBranches = (projectId: number) => {
     return axiosInstance.get(`/auto-ci-service/v1/projects/${projectId}/branches`)
 }
+const fetchListPipelines = (projectId: number) => {
+    return axiosInstance.get(`/auto-ci-service/v1/projects/${projectId}/pipelines`)
+}
+const fetchListExecutions = (projectId: number, pipelineId: number) => {
+    return axiosInstance.get(`/auto-ci-service/v1/projects/${projectId}/pipelines/${pipelineId}/executions`)
+}
 
-export default { getAllProjects, createNewProjects, fetchPipelineTemplate, fetchListBranches }
+const fetchExecutionDetail = (projectId: number, pipelineId: number, executionId: number) => {
+    return axiosInstance.get(`/auto-ci-service/v1/projects/${projectId}/pipelines/${pipelineId}/executions/${executionId}`)
+}
+export default { getAllProjects, createNewProjects, fetchPipelineTemplate, fetchListBranches, fetchListPipelines, fetchListExecutions, fetchExecutionDetail }
