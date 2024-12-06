@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { Table, Spinner, Container, Alert, Button, ButtonGroup } from 'react-bootstrap';
+import { Table, Spinner, Container, Alert, Button, Modal } from 'react-bootstrap';
 import projectService from '@/utils/api/project.service';
 import { useParams, useRouter } from 'next/navigation';
 import { toast } from 'react-toastify';
@@ -19,37 +19,39 @@ const PipelinePage: React.FC = () => {
     const [pipelines, setPipelines] = useState<Pipeline[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
+    const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
+    const [pipelineToDelete, setPipelineToDelete] = useState<number | null>(null);
     const router = useRouter();
     const params = useParams();
 
     useEffect(() => {
-        const fetchPipelines = async () => {
-            try {
-                setLoading(true);
-                const { id } = params
-                const response = await projectService.fetchListPipelines(Number(id)); // Replace with actual API function
-
-                if (response.status === 200 && response.data) {
-                    setPipelines(response.data.data);
-                } else {
-                    throw new Error('Failed to fetch pipelines');
-                }
-            } catch (err: any) {
-                setError(err.message || 'An error occurred while fetching pipelines');
-            } finally {
-                setLoading(false);
-            }
-        };
-
         fetchPipelines();
     }, []);
-    const runExecution = async (projectId: number, pipelineId : number) => {
+
+    const fetchPipelines = async () => {
+        try {
+            setLoading(true);
+            const { id } = params;
+            const response = await projectService.fetchListPipelines(Number(id)); // Replace with actual API function
+
+            if (response.status === 200 && response.data) {
+                setPipelines(response.data.data);
+            } else {
+                throw new Error('Failed to fetch pipelines');
+            }
+        } catch (err: any) {
+            setError(err.message || 'An error occurred while fetching pipelines');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const runExecution = async (projectId: number, pipelineId: number) => {
         try {
             setLoading(true);
             const response = await projectService.runExecution(projectId, pipelineId); // Replace with actual API function
 
             if (response.status === 200 && response.data) {
-                // Handle successful
                 const executionId = response.data.data?.id ? response.data.data.id : 0;
                 if (executionId > 0) {
                     router.push(`pipeline/${pipelineId}/executions/${executionId}`);
@@ -59,17 +61,46 @@ const PipelinePage: React.FC = () => {
             }
         } catch (err: any) {
             toast.error(err.message || 'An error occurred while starting pipeline execution');
-        } 
-    }
+        } finally {
+            setLoading(false);
+        }
+    };
+
     const handleRunPipeline = (pipelineId: number) => {
-       const {id} = params;
-         runExecution(Number(id), pipelineId);
+        const { id } = params;
+        runExecution(Number(id), pipelineId);
     };
 
     const handleViewDetails = (pipelineId: number) => {
-        console.log(`View Details clicked for Pipeline ID: ${pipelineId}`);
-        // Navigate to details page or open a modal with pipeline details
-        router.push(`pipeline/${pipelineId}`)
+        router.push(`pipeline/${pipelineId}`);
+    };
+
+    const handleDeletePipeline = (pipelineId: number) => {
+        setPipelineToDelete(pipelineId);
+        setShowDeleteModal(true);
+    };
+
+    const confirmDeletePipeline = async () => {
+        try {
+            if (!pipelineToDelete) return;
+
+            setLoading(true);
+            const { id } = params;
+            const response = await projectService.deletePipeline(Number(id), pipelineToDelete); // Replace with actual API function
+
+            if (response.status === 200) {
+                toast.success('Pipeline deleted successfully');
+                setPipelines((prev) => prev.filter((pipeline) => pipeline.id !== pipelineToDelete));
+            } else {
+                throw new Error('Failed to delete pipeline');
+            }
+        } catch (err: any) {
+            toast.error(err.message || 'An error occurred while deleting pipeline');
+        } finally {
+            setPipelineToDelete(null);
+            setShowDeleteModal(false);
+            setLoading(false);
+        }
     };
 
     if (loading) {
@@ -112,10 +143,9 @@ const PipelinePage: React.FC = () => {
                             <td>{pipeline.on}</td>
                             <td>{pipeline.refs.join(', ')}</td>
                             <td>{pipeline.last_execution_status}</td>
-                            <td >
-                                {/* <ButtonGroup> */}
+                            <td>
                                 <Button
-                                    className='me-2'
+                                    className="me-2"
                                     variant="success"
                                     size="sm"
                                     onClick={() => handleRunPipeline(pipeline.id)}
@@ -123,19 +153,41 @@ const PipelinePage: React.FC = () => {
                                     Run Now
                                 </Button>
                                 <Button
-
+                                    className="me-2"
                                     variant="primary"
                                     size="sm"
                                     onClick={() => handleViewDetails(pipeline.id)}
                                 >
                                     View Details
                                 </Button>
-                                {/* </ButtonGroup> */}
+                                <Button
+                                    variant="danger"
+                                    size="sm"
+                                    onClick={() => handleDeletePipeline(pipeline.id)}
+                                >
+                                    Delete
+                                </Button>
                             </td>
                         </tr>
                     ))}
                 </tbody>
             </Table>
+
+            {/* Delete Confirmation Modal */}
+            <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Confirm Delete</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>Are you sure you want to delete this pipeline?</Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>
+                        Cancel
+                    </Button>
+                    <Button variant="danger" onClick={confirmDeletePipeline}>
+                        Delete
+                    </Button>
+                </Modal.Footer>
+            </Modal>
         </Container>
     );
 };

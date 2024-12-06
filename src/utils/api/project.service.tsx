@@ -31,12 +31,16 @@ const fetchExecutionDetail = (projectId: number, pipelineId: number, executionId
 const runExecution = (projectId: number, pipelineId: number) => {
     return axiosInstance.post(`/auto-ci-service/v1/projects/${projectId}/pipelines/${pipelineId}/executions`)
 }
-const createNewPipeline = (data : object) => {
+const createNewPipeline = (data: object) => {
     return axiosInstance.post(`/auto-ci-service/v1/pipelines`, data)
 }
-export default { getAllProjects, createNewProjects, 
-    fetchPipelineTemplate, fetchListBranches, 
-    fetchListPipelines, fetchListExecutions, 
+const deletePipeline = (projectId: number, pipelineId: number) => {
+    return axiosInstance.delete(`auto-ci-service/v1/projects/${projectId}/pipelines/${pipelineId}`)
+}
+export default {
+    getAllProjects, createNewProjects,
+    fetchPipelineTemplate, fetchListBranches,
+    fetchListPipelines, fetchListExecutions,
     fetchExecutionDetail, runExecution,
-     createNewPipeline
- }
+    createNewPipeline, deletePipeline
+}

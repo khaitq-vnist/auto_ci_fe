@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { Table, Spinner, Container, Alert, Pagination } from 'react-bootstrap';
 import projectService from '@/utils/api/project.service'; // Replace with actual API service
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 
 interface Branch {
     name: string;
@@ -35,6 +35,8 @@ const ExecutionPage: React.FC = () => {
     const [currentPage, setCurrentPage] = useState<number>(1);
     const [totalPages, setTotalPages] = useState<number>(1);
     const params = useParams();
+    const router = useRouter(); // For navigation
+
     useEffect(() => {
         fetchExecutions();
     }, [currentPage]);
@@ -42,7 +44,7 @@ const ExecutionPage: React.FC = () => {
     const fetchExecutions = async () => {
         try {
             setLoading(true);
-            const { id, pipelineId } = params
+            const { id, pipelineId } = params;
             const response = await projectService.fetchListExecutions(Number(id), Number(pipelineId)); // Replace with actual API function
 
             if (response.status === 200 && response.data) {
@@ -66,6 +68,11 @@ const ExecutionPage: React.FC = () => {
 
     const handlePageChange = (page: number) => {
         setCurrentPage(page);
+    };
+
+    const handleRowClick = (executionId: number) => {
+        const { pipelineId } = params
+        router.push(`${pipelineId}/executions/${executionId}`); // Navigate to the detail page
     };
 
     if (loading) {
@@ -102,7 +109,11 @@ const ExecutionPage: React.FC = () => {
                 </thead>
                 <tbody>
                     {executions.map((execution, index) => (
-                        <tr key={execution.id}>
+                        <tr
+                            key={execution.id}
+                            onClick={() => handleRowClick(execution.id)} // Handle row click
+                            style={{ cursor: 'pointer' }} // Add a pointer cursor for better UX
+                        >
                             <td>{index + 1 + (currentPage - 1) * 20}</td>
                             <td>{formatDate(execution.start_date)}</td>
                             <td>{formatDate(execution.finish_date)}</td>
