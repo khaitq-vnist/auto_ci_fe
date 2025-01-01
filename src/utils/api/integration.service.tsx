@@ -1,12 +1,13 @@
 import { CreateIntegrationRequest } from "@/app/dashboard/integration/list.props";
 import { PrefixIntegrationPathV1 } from "./constant/path";
-import axiosInstance from "./instance.axios";
+import { clientPrivateRequester } from "./base.api";
+
 
 const getAllIntegrations = () => {
-    return axiosInstance.get(PrefixIntegrationPathV1)
+    return clientPrivateRequester.get(PrefixIntegrationPathV1)
 }
 const createIntegration = (integrationData: CreateIntegrationRequest) => {
-    return axiosInstance.post(PrefixIntegrationPathV1, integrationData, {
+    return clientPrivateRequester.post(PrefixIntegrationPathV1, integrationData, {
         headers: {
             'Content-Type': 'application/json',
         },

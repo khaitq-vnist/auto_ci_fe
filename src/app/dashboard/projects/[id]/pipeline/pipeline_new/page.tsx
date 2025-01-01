@@ -16,8 +16,24 @@ interface StageRequest {
     execute_commands: string[];
     docker_image_name: string;
     docker_image_tag: string
+    variables?: VariableRequest[];
+    services?: ServiceRequest[];
 }
-
+interface VariableRequest {
+    key: string;
+    value: string;
+}
+interface ServiceRequest {
+    type: string;
+    version: string;
+    connection?: ConnectionServiceRequest;
+}
+interface ConnectionServiceRequest {
+    host: string;
+    port: number;
+    user: string;
+    password: string;
+}
 interface PipelineRequest {
     name: string;
     on: string;
@@ -51,8 +67,8 @@ const PipelineNew: React.FC = () => {
             name: settings.name,
             on: settings.trigger === "Manually" ? "CLICK" : settings.trigger,
             refs: settings.branches?.map((branch: string) => `refs/heads/${branch}`),
-            stages: pipeline?.stages
-                ?.filter((stage: any) => String(stage.type) == 'enabled')
+            stages: (pipeline?.stages || [])
+                .filter((stage: any) => String(stage.type) == 'enabled')
                 .map((stage: any) => ({
                     name: stage.name,
                     type: "BUILD",
@@ -61,15 +77,32 @@ const PipelineNew: React.FC = () => {
                     execute_commands: stage.commands?.map((commands: any) => commands.command) || [],
                     docker_image_name: stage.docker_image,
                     docker_image_tag: stage.docker_image_tag,
-                })) || [],
+                    variables: stage.variables?.map((variable: any) => ({
+                        key: variable.key,
+                        value: variable.value,
+                    })) || [],
+                    services: stage.services?.map((service: any) => ({
+                        type: service.type,
+                        version: service.version,
+                        connection: service.connection
+                            ? {
+                                host: service.connection.host,
+                                port: service.connection.port,
+                                user: service.connection.user,
+                                password: service.connection.password,
+                            }
+                            : null,
+                    })) || [],
+                }))
         };
 
         console.log('Pipeline Request:', pipelineRequest);
         const sendRequestCreatePipeline = async (data: object) => {
             try {
-                const response = await projectService.createNewPipeline(data)
+                const { id } = params
+                const response = await projectService.createNewPipeline(Number(id), data)
                 if (response.status == 200 && response.data) {
-                    const { id } = params
+
                     router.push(`/dashboard/projects/${id}/pipeline`)
                 } else {
                     throw Error("Send request create pipeline fails")

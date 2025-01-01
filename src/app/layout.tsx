@@ -3,7 +3,8 @@ import localFont from "next/font/local";
 import "./globals.css";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'react-toastify/dist/ReactToastify.css';
-import AppHeader from "@/components/header/app.header";
+import AuthGuard from "../components/auth/auth";
+import { AuthProvider } from "./context/auth_context";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -28,10 +29,22 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable}`}>
-        <AppHeader/>
-        {children}
+      <body
+        className={`${geistSans.variable} ${geistMono.variable}`}
+        style={{
+          backgroundColor: '#f8f9fa', // Match the AppHeader background color
+          margin: 0,
+          minHeight: '100vh', // Ensure the body covers the full viewport height
+          display: 'flex',
+          flexDirection: 'column',
+          color: '#212529', // Set the text color to a dark shade for contrast
+        }}
+      >
+        <AuthProvider>
+          <AuthGuard>{children}</AuthGuard>
+        </AuthProvider>
       </body>
     </html>
   );
+
 }

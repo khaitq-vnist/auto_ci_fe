@@ -1,41 +1,41 @@
 
 import { CreateProjectRequest } from "@/app/dashboard/projects/new/props"
 
-import axiosInstance from "./instance.axios"
+import { clientPrivateRequester } from "./base.api";
 
 const getAllProjects = () => {
-    return axiosInstance.get("/auto-ci-service/v1/projects")
+    return clientPrivateRequester.get("/auto-ci-service/v1/projects")
 }
 
 const createNewProjects = (requestData: CreateProjectRequest) => {
-    return axiosInstance.post("/auto-ci-service/v1/projects", requestData)
+    return clientPrivateRequester.post("/auto-ci-service/v1/projects", requestData)
 }
 
 const fetchPipelineTemplate = (buildTool: string) => {
-    return axiosInstance.get(`/auto-ci-service/v1/projects/template/${buildTool}`);
+    return clientPrivateRequester.get(`/auto-ci-service/v1/projects/template/${buildTool}`);
 };
 
 const fetchListBranches = (projectId: number) => {
-    return axiosInstance.get(`/auto-ci-service/v1/projects/${projectId}/branches`)
+    return clientPrivateRequester.get(`/auto-ci-service/v1/projects/${projectId}/branches`)
 }
 const fetchListPipelines = (projectId: number) => {
-    return axiosInstance.get(`/auto-ci-service/v1/projects/${projectId}/pipelines`)
+    return clientPrivateRequester.get(`/auto-ci-service/v1/projects/${projectId}/pipelines`)
 }
 const fetchListExecutions = (projectId: number, pipelineId: number) => {
-    return axiosInstance.get(`/auto-ci-service/v1/projects/${projectId}/pipelines/${pipelineId}/executions`)
+    return clientPrivateRequester.get(`/auto-ci-service/v1/projects/${projectId}/pipelines/${pipelineId}/executions`)
 }
 
 const fetchExecutionDetail = (projectId: number, pipelineId: number, executionId: number) => {
-    return axiosInstance.get(`/auto-ci-service/v1/projects/${projectId}/pipelines/${pipelineId}/executions/${executionId}`)
+    return clientPrivateRequester.get(`/auto-ci-service/v1/projects/${projectId}/pipelines/${pipelineId}/executions/${executionId}`)
 }
 const runExecution = (projectId: number, pipelineId: number) => {
-    return axiosInstance.post(`/auto-ci-service/v1/projects/${projectId}/pipelines/${pipelineId}/executions`)
+    return clientPrivateRequester.post(`/auto-ci-service/v1/projects/${projectId}/pipelines/${pipelineId}/executions`)
 }
-const createNewPipeline = (data: object) => {
-    return axiosInstance.post(`/auto-ci-service/v1/pipelines`, data)
+const createNewPipeline = (projectId: number, data: object) => {
+    return clientPrivateRequester.post(`/auto-ci-service/v1/pipelines/${projectId}`, data)
 }
 const deletePipeline = (projectId: number, pipelineId: number) => {
-    return axiosInstance.delete(`auto-ci-service/v1/projects/${projectId}/pipelines/${pipelineId}`)
+    return clientPrivateRequester.delete(`auto-ci-service/v1/projects/${projectId}/pipelines/${pipelineId}`)
 }
 export default {
     getAllProjects, createNewProjects,

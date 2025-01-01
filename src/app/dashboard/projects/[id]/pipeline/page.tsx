@@ -5,6 +5,7 @@ import { Table, Spinner, Container, Alert, Button, Modal } from 'react-bootstrap
 import projectService from '@/utils/api/project.service';
 import { useParams, useRouter } from 'next/navigation';
 import { toast } from 'react-toastify';
+import DashboardLayout from '@/layouts/dashboard.layout';
 
 interface Pipeline {
     id: number;
@@ -35,7 +36,11 @@ const PipelinePage: React.FC = () => {
             const response = await projectService.fetchListPipelines(Number(id)); // Replace with actual API function
 
             if (response.status === 200 && response.data) {
-                setPipelines(response.data.data);
+                if (response.data.data.length > 0) {
+                    setPipelines(response.data.data);
+                } else {
+
+                }
             } else {
                 throw new Error('Failed to fetch pipelines');
             }
@@ -122,73 +127,75 @@ const PipelinePage: React.FC = () => {
     }
 
     return (
-        <Container>
-            <h3 className="mb-4">Pipeline List</h3>
-            <Table bordered hover>
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Name</th>
-                        <th>Trigger</th>
-                        <th>Refs</th>
-                        <th>Last Execution Status</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {pipelines.map((pipeline, index) => (
-                        <tr key={pipeline.id}>
-                            <td>{index + 1}</td>
-                            <td>{pipeline.name}</td>
-                            <td>{pipeline.on}</td>
-                            <td>{pipeline.refs.join(', ')}</td>
-                            <td>{pipeline.last_execution_status}</td>
-                            <td>
-                                <Button
-                                    className="me-2"
-                                    variant="success"
-                                    size="sm"
-                                    onClick={() => handleRunPipeline(pipeline.id)}
-                                >
-                                    Run Now
-                                </Button>
-                                <Button
-                                    className="me-2"
-                                    variant="primary"
-                                    size="sm"
-                                    onClick={() => handleViewDetails(pipeline.id)}
-                                >
-                                    View Details
-                                </Button>
-                                <Button
-                                    variant="danger"
-                                    size="sm"
-                                    onClick={() => handleDeletePipeline(pipeline.id)}
-                                >
-                                    Delete
-                                </Button>
-                            </td>
+        <DashboardLayout>
+            <Container>
+                <h3 className="mb-4">Pipeline List</h3>
+                <Table bordered hover>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Name</th>
+                            <th>Trigger</th>
+                            <th>Refs</th>
+                            <th>Last Execution Status</th>
+                            <th>Actions</th>
                         </tr>
-                    ))}
-                </tbody>
-            </Table>
+                    </thead>
+                    <tbody>
+                        {pipelines.map((pipeline, index) => (
+                            <tr key={pipeline.id}>
+                                <td>{index + 1}</td>
+                                <td>{pipeline.name}</td>
+                                <td>{pipeline.on}</td>
+                                <td>{pipeline.refs.join(', ')}</td>
+                                <td>{pipeline.last_execution_status}</td>
+                                <td>
+                                    <Button
+                                        className="me-2"
+                                        variant="success"
+                                        size="sm"
+                                        onClick={() => handleRunPipeline(pipeline.id)}
+                                    >
+                                        Run Now
+                                    </Button>
+                                    <Button
+                                        className="me-2"
+                                        variant="primary"
+                                        size="sm"
+                                        onClick={() => handleViewDetails(pipeline.id)}
+                                    >
+                                        View Details
+                                    </Button>
+                                    <Button
+                                        variant="danger"
+                                        size="sm"
+                                        onClick={() => handleDeletePipeline(pipeline.id)}
+                                    >
+                                        Delete
+                                    </Button>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </Table>
 
-            {/* Delete Confirmation Modal */}
-            <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
-                <Modal.Header closeButton>
-                    <Modal.Title>Confirm Delete</Modal.Title>
-                </Modal.Header>
-                <Modal.Body>Are you sure you want to delete this pipeline?</Modal.Body>
-                <Modal.Footer>
-                    <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>
-                        Cancel
-                    </Button>
-                    <Button variant="danger" onClick={confirmDeletePipeline}>
-                        Delete
-                    </Button>
-                </Modal.Footer>
-            </Modal>
-        </Container>
+                {/* Delete Confirmation Modal */}
+                <Modal show={showDeleteModal} onHide={() => setShowDeleteModal(false)}>
+                    <Modal.Header closeButton>
+                        <Modal.Title>Confirm Delete</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>Are you sure you want to delete this pipeline?</Modal.Body>
+                    <Modal.Footer>
+                        <Button variant="secondary" onClick={() => setShowDeleteModal(false)}>
+                            Cancel
+                        </Button>
+                        <Button variant="danger" onClick={confirmDeletePipeline}>
+                            Delete
+                        </Button>
+                    </Modal.Footer>
+                </Modal>
+            </Container>
+        </DashboardLayout>
     );
 };
 

@@ -9,14 +9,21 @@ interface DashboardLayoutProps {
   children: ReactNode;
 }
 
-const  DashboardLayout = ({ children } : DashboardLayoutProps) => {
+const DashboardLayout = ({ children }: DashboardLayoutProps) => {
   const [isMinimized, setIsMinimized] = useState(false);
 
   const toggleSidebar = () => setIsMinimized(!isMinimized);
+  const handleLogout = () => {
+    // Logout logic here
+    localStorage.removeItem('access_token');
+    // Redirect to login page
+    window.location.href = '/login';
+  }
+
 
   return (
     <div className="d-flex">
-      <DashboardSidebar isMinimized={isMinimized} toggleSidebar={toggleSidebar} />
+      <DashboardSidebar isMinimized={isMinimized} toggleSidebar={toggleSidebar} onLogout={handleLogout} />
       <Container
         fluid
         style={{
@@ -28,10 +35,10 @@ const  DashboardLayout = ({ children } : DashboardLayoutProps) => {
       >
         {children}
       </Container>
-      <ToastContainer 
-       position="top-right"
-       autoClose={3000} 
-       />
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+      />
     </div>
   );
 }

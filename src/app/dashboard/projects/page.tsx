@@ -20,6 +20,7 @@ interface Project {
 // Function to fetch projects using the real API
 const fetchProjects = async (): Promise<Project[]> => {
     try {
+
         const response = await projectService.getAllProjects();
         console.log("response: ", response)
         if (response.status != 200) {
@@ -59,88 +60,90 @@ const ProjectsCard = () => {
     }
 
     return (
-        <Container fluid style={{ padding: '20px' }}>
-            <div className="d-flex justify-content-between align-items-center mb-4">
-                <h2>Projects</h2>
-                <Button variant="primary" onClick={handleOnClickButtonAddNew}>Add Project</Button>
-            </div>
+        <DashboardLayout>
+            <Container fluid style={{ padding: '20px' }}>
+                <div className="d-flex justify-content-between align-items-center mb-4">
+                    <h2>Projects</h2>
+                    <Button variant="primary" onClick={handleOnClickButtonAddNew}>Add Project</Button>
+                </div>
 
-            <div className="d-flex mb-3">
-                <Button variant="outline-secondary" className="me-2">
-                    <FiSearch />
-                </Button>
-                <Dropdown className="me-2">
-                    <Dropdown.Toggle variant="outline-secondary" id="sort-dropdown">
-                        Sort
-                    </Dropdown.Toggle>
-                    <Dropdown.Menu>
-                        <Dropdown.Item href="#">Last Updated</Dropdown.Item>
-                        <Dropdown.Item href="#">Name</Dropdown.Item>
-                    </Dropdown.Menu>
-                </Dropdown>
-                <Dropdown>
-                    <Dropdown.Toggle variant="outline-secondary" id="filter-dropdown">
-                        Filter: Mine
-                    </Dropdown.Toggle>
-                    <Dropdown.Menu>
-                        <Dropdown.Item href="#">All</Dropdown.Item>
-                        <Dropdown.Item href="#">Mine</Dropdown.Item>
-                    </Dropdown.Menu>
-                </Dropdown>
-            </div>
+                <div className="d-flex mb-3">
+                    <Button variant="outline-secondary" className="me-2">
+                        <FiSearch />
+                    </Button>
+                    <Dropdown className="me-2">
+                        <Dropdown.Toggle variant="outline-secondary" id="sort-dropdown">
+                            Sort
+                        </Dropdown.Toggle>
+                        <Dropdown.Menu>
+                            <Dropdown.Item href="#">Last Updated</Dropdown.Item>
+                            <Dropdown.Item href="#">Name</Dropdown.Item>
+                        </Dropdown.Menu>
+                    </Dropdown>
+                    <Dropdown>
+                        <Dropdown.Toggle variant="outline-secondary" id="filter-dropdown">
+                            Filter: Mine
+                        </Dropdown.Toggle>
+                        <Dropdown.Menu>
+                            <Dropdown.Item href="#">All</Dropdown.Item>
+                            <Dropdown.Item href="#">Mine</Dropdown.Item>
+                        </Dropdown.Menu>
+                    </Dropdown>
+                </div>
 
-            <Row>
-                {projects.map((project) => (
-                    <Col
-                        xs={12}
-                        sm={6}
-                        md={4}
-                        lg={3}
-                        key={project.id}
-                        className="mb-4"
-                    >
-                        <Card
-                            style={{ border: '1px solid #ddd', borderRadius: '8px', cursor: 'pointer' }}
-                            onClick={() => router.push(`projects/${project.id}/pipeline`)}
+                <Row>
+                    {projects.map((project) => (
+                        <Col
+                            xs={12}
+                            sm={6}
+                            md={4}
+                            lg={3}
+                            key={project.id}
+                            className="mb-4"
                         >
-                            <Card.Body className="d-flex align-items-center">
-                                <div
-                                    style={{
-                                        width: '40px',
-                                        height: '40px',
-                                        borderRadius: '50%',
-                                        backgroundColor: project.icon === 'github' ? '#f0f0f0' : '#FFCDD2',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        fontSize: '18px',
-                                        fontWeight: 'bold',
-                                        color: project.icon === 'github' ? '#000' : '#C2185B',
-                                        marginRight: '10px',
-                                    }}
-                                >
-                                    {project.icon === 'github' ? (
-                                        <img
-                                            src="/github-icon.png" // Placeholder path for GitHub icon
-                                            alt="GitHub"
-                                            style={{ width: '24px', height: '24px' }}
-                                        />
-                                    ) : (
-                                        project.icon
-                                    )}
-                                </div>
-                                <div>
-                                    <Card.Title style={{ fontSize: '16px', margin: 0 }}>{project.name}</Card.Title>
-                                    <Card.Text style={{ fontSize: '14px', color: '#6c757d' }}>
-                                        Last activity {project.lastActivity}
-                                    </Card.Text>
-                                </div>
-                            </Card.Body>
-                        </Card>
-                    </Col>
-                ))}
-</Row>
-        </Container>
+                            <Card
+                                style={{ border: '1px solid #ddd', borderRadius: '8px', cursor: 'pointer' }}
+                                onClick={() => router.push(`projects/${project.id}/pipeline`)}
+                            >
+                                <Card.Body className="d-flex align-items-center">
+                                    <div
+                                        style={{
+                                            width: '40px',
+                                            height: '40px',
+                                            borderRadius: '50%',
+                                            backgroundColor: project.icon === 'github' ? '#f0f0f0' : '#FFCDD2',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            fontSize: '18px',
+                                            fontWeight: 'bold',
+                                            color: project.icon === 'github' ? '#000' : '#C2185B',
+                                            marginRight: '10px',
+                                        }}
+                                    >
+                                        {project.icon === 'github' ? (
+                                            <img
+                                                src="/github-icon.png" // Placeholder path for GitHub icon
+                                                alt="GitHub"
+                                                style={{ width: '24px', height: '24px' }}
+                                            />
+                                        ) : (
+                                            project.icon
+                                        )}
+                                    </div>
+                                    <div>
+                                        <Card.Title style={{ fontSize: '16px', margin: 0 }}>{project.name}</Card.Title>
+                                        <Card.Text style={{ fontSize: '14px', color: '#6c757d' }}>
+                                            Last activity {project.lastActivity}
+                                        </Card.Text>
+                                    </div>
+                                </Card.Body>
+                            </Card>
+                        </Col>
+                    ))}
+                </Row>
+            </Container>
+        </DashboardLayout>
     );
 };
 

@@ -1,8 +1,9 @@
 'use client';
 
 import projectService from '@/utils/api/project.service';
+import serviceService from '@/utils/api/service.service';
 import React, { useEffect, useState } from 'react';
-import { Card, Form, Button, Container, Collapse, Spinner, Alert } from 'react-bootstrap';
+import { Card, Form, Button, Container, Collapse, Spinner, Alert, Modal } from 'react-bootstrap';
 
 interface Command {
     id: number;
@@ -19,6 +20,14 @@ interface Service {
     id: number;
     type: string;
     version: string;
+    connection: ServiceConnection;
+}
+interface ServiceConnection {
+    host: string;
+    port: string;
+    user: string;
+    password: string;
+    db: string;
 }
 
 interface Stage {
@@ -57,6 +66,7 @@ const PipelineStages: React.FC<{
     const [expandedStageId, setExpandedStageId] = useState<number | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
+    const [showModal, setShowModal] = useState<boolean>(false);
 
     useEffect(() => {
         let isMounted = true;
@@ -113,9 +123,90 @@ const PipelineStages: React.FC<{
             stages: pipeline.stages.map((stage) =>
                 stage.id === stageId
                     ? {
-                          ...stage,
-                          variables: stage.variables?.filter((_, index) => index !== variableIndex) || null,
-                      }
+                        ...stage,
+                        variables: stage.variables?.filter((_, index) => index !== variableIndex) || null,
+                    }
+                    : stage
+            ),
+        };
+
+        setPipeline(updatedPipeline);
+
+        onPipelineChange(updatedPipeline);
+    };
+    const [services, setServices] = useState<Service[]>([]);
+    const fetchServices = async () => {
+        const response = await serviceService.fetchAllServices();
+
+        if (response.status !== 200) {
+            throw new Error(response.data.message || 'Failed to fetch services.');
+        }
+        setServices(response.data.data);
+    };
+    const handleAddService = (service: Service) => {
+        if (!pipeline) return;
+
+        const updatedPipeline = {
+            ...pipeline,
+            stages: pipeline.stages.map((stage) =>
+                stage.id === expandedStageId
+                    ? {
+                        ...stage,
+                        services: [...(stage.services || []), service],
+                    }
+                    : stage
+            ),
+        };
+
+        setPipeline(updatedPipeline);
+
+        onPipelineChange(updatedPipeline);
+        setShowModal(false);
+    }
+    const updateServiceField = (index: number, field: string, value: string) => {
+        if (!pipeline || expandedStageId === null) return;
+
+        const updatedPipeline = {
+            ...pipeline,
+            stages: pipeline.stages.map((stage) =>
+                stage.id === expandedStageId
+                    ? {
+                        ...stage,
+                        services: stage.services?.map((service, i) =>
+                            i === index ? { ...service, connection: { ...service.connection, [field]: value } } : service
+                        ) || null,
+                    }
+                    : stage
+            ),
+        };
+
+        setPipeline(updatedPipeline);
+
+        onPipelineChange(updatedPipeline);
+    };
+
+    const updateServiceUsername = (index: number, value: string) => {
+        updateServiceField(index, 'user', value);
+    };
+
+    const updateServicePassword = (index: number, value: string) => {
+        updateServiceField(index, 'password', value);
+    };
+
+    const updateServiceDatabase = (index: number, value: string) => {
+        updateServiceField(index, 'db', value);
+    };
+    const removeService = (index: number) => {
+        if (!pipeline || expandedStageId === null) return;
+
+        const updatedPipeline = {
+            ...pipeline,
+            stages: pipeline.stages.map((stage) =>
+                stage.id === expandedStageId
+                    ? {
+                        ...stage,
+                        services: stage.services?.filter((_, i) => i !== index) || null,
+                    }
                     : stage
             ),
         };
@@ -290,6 +381,123 @@ const PipelineStages: React.FC<{
                                                         + Add Variable
                                                     </Button>
                                                 </Card.Body>
+                                            </Card>
+                                            <Card className="mb-3">
+                                                <Card.Header>Services</Card.Header>
+                                                <Card.Body>
+                                                    {stage.services?.map((service, index) => (
+                                                        <div key={index} className="mb-3">
+                                                            <Form.Group controlId={`serviceVersion-${index}`}>
+                                                                <Form.Label>Service Version</Form.Label>
+                                                                <Form.Control
+                                                                    type="text"
+                                                                    placeholder="Service Version"
+                                                                    value={service.version}
+                                                                    onChange={(e) => updateServiceField(index, 'version', e.target.value)}
+                                                                    className="mb-2"
+                                                                    disabled
+                                                                />
+                                                            </Form.Group>
+
+                                                            <Form.Group controlId={`servicePort-${index}`}>
+                                                                <Form.Label>Service Port</Form.Label>
+                                                                <Form.Control
+                                                                    type="text"
+                                                                    placeholder="Service Port"
+                                                                    value={service.connection.port}
+                                                                    onChange={(e) => updateServiceField(index, 'port', e.target.value)}
+                                                                    className="mb-2"
+                                                                    disabled
+                                                                />
+                                                            </Form.Group>
+
+                                                            <Form.Group controlId={`serviceUsername-${index}`}>
+                                                                <Form.Label>Service Username</Form.Label>
+                                                                <Form.Control
+                                                                    type="text"
+                                                                    placeholder="Service Username"
+                                                                    value={service.connection.user}
+                                                                    onChange={(e) => updateServiceUsername(index, e.target.value)}
+                                                                    className="mb-2"
+                                                                />
+                                                            </Form.Group>
+
+                                                            <Form.Group controlId={`servicePassword-${index}`}>
+                                                                <Form.Label>Service Password</Form.Label>
+                                                                <Form.Control
+                                                                    type="text"
+                                                                    placeholder="Service Password"
+                                                                    value={service.connection.password}
+                                                                    onChange={(e) => updateServicePassword(index, e.target.value)}
+                                                                    className="mb-2"
+                                                                />
+                                                            </Form.Group>
+
+                                                            <Form.Group controlId={`serviceDatabase-${index}`}>
+                                                                <Form.Label>Service Database</Form.Label>
+                                                                <Form.Control
+                                                                    type="text"
+                                                                    placeholder="Service Database"
+                                                                    value={service.connection.db}
+                                                                    onChange={(e) => updateServiceDatabase(index, e.target.value)}
+                                                                    className="mb-2"
+                                                                />
+                                                            </Form.Group>
+
+                                                            <Button
+                                                                variant="outline-danger"
+                                                                size="sm"
+                                                                className="mt-2"
+                                                                onClick={() => removeService(index)}
+                                                            >
+                                                                Remove
+                                                            </Button>
+                                                        </div>
+                                                    ))}
+                                                    <Button
+                                                        variant="outline-primary"
+                                                        size="sm"
+                                                        onClick={() => {
+                                                            fetchServices();
+                                                            setShowModal(true);
+                                                        }}
+                                                    >
+                                                        + Add Service
+                                                    </Button>
+                                                </Card.Body>
+
+                                                {/* Modal for service selection */}
+                                                <Modal show={showModal} onHide={() => setShowModal(false)} size="lg">
+                                                    <Modal.Header closeButton>
+                                                        <Modal.Title>Select a Service</Modal.Title>
+                                                    </Modal.Header>
+                                                    <Modal.Body>
+                                                        {loading ? (
+                                                            <div className="text-center">
+                                                                <Spinner animation="border" />
+                                                            </div>
+                                                        ) : (
+                                                            <div>
+                                                                {services.length === 0 ? (
+                                                                    <p>No services available.</p>
+                                                                ) : (
+                                                                    <div>
+                                                                        {services.map((service) => (
+                                                                            <Button
+                                                                                key={service.id}
+                                                                                variant="outline-primary"
+                                                                                className="m-2"
+                                                                                onClick={() => handleAddService(service)}
+                                                                            >
+                                                                                {service.type} - {service.version}
+                                                                            </Button>
+                                                                        ))}
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        )}
+                                                    </Modal.Body>
+                                                </Modal>
                                             </Card>
                                         </Card.Body>
                                     </Card>
