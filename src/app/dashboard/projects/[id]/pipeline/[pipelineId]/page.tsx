@@ -17,6 +17,8 @@ interface Execution {
     status: string;
     triggered_on: string;
     branch: Branch;
+    logs_file?: string[];
+    coverage?: number[];
 }
 
 interface ApiResponse {
@@ -49,6 +51,7 @@ const ExecutionPage: React.FC = () => {
 
             if (response.status === 200 && response.data) {
                 const data: ApiResponse = response.data.data;
+                console.log(data);
                 setExecutions(data.executions);
                 setTotalPages(data.total_page_count);
             } else {
@@ -71,8 +74,12 @@ const ExecutionPage: React.FC = () => {
     };
 
     const handleRowClick = (executionId: number) => {
-        const { pipelineId } = params
+        const { pipelineId } = params;
         router.push(`${pipelineId}/executions/${executionId}`); // Navigate to the detail page
+    };
+
+    const handleLinkClick = (e: React.MouseEvent) => {
+        e.stopPropagation(); // Prevent the row click event from firing
     };
 
     if (loading) {
@@ -105,6 +112,8 @@ const ExecutionPage: React.FC = () => {
                         <th>Status</th>
                         <th>Triggered On</th>
                         <th>Branch</th>
+                        <th>Coverage</th>
+                        <th>Download Logs</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -121,7 +130,28 @@ const ExecutionPage: React.FC = () => {
                                 {execution.status}
                             </td>
                             <td>{execution.triggered_on}</td>
-                            <td>{execution.branch.name}</td>
+                            <td>{execution.branch?.name}</td>
+                            <td>{execution.coverage}</td>
+                            <td>
+                                {execution.logs_file && execution.logs_file.length > 0 ? (
+                                    <ul>
+                                        {execution.logs_file.map((file, fileIndex) => (
+                                            <li key={fileIndex}>
+                                                <a
+                                                    href={file}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    onClick={handleLinkClick} // Prevent row click
+                                                >
+                                                    Link {fileIndex + 1}
+                                                </a>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                ) : (
+                                    'No Logs'
+                                )}
+                            </td>
                         </tr>
                     ))}
                 </tbody>

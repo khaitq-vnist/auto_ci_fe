@@ -39,7 +39,8 @@ const PipelinePage: React.FC = () => {
                 if (response.data.data.length > 0) {
                     setPipelines(response.data.data);
                 } else {
-
+                    router.push(`/dashboard/projects/${id}/pipeline/new/analytics`);
+                    return
                 }
             } else {
                 throw new Error('Failed to fetch pipelines');
@@ -108,6 +109,10 @@ const PipelinePage: React.FC = () => {
         }
     };
 
+    const handleAddNewPipeline = () => {
+        router.push(`pipeline/pipeline_new`);
+    };
+
     if (loading) {
         return (
             <Container className="text-center mt-4">
@@ -129,7 +134,12 @@ const PipelinePage: React.FC = () => {
     return (
         <DashboardLayout>
             <Container>
-                <h3 className="mb-4">Pipeline List</h3>
+                <div className="d-flex justify-content-between align-items-center mb-4">
+                    <h3>Pipeline List</h3>
+                    <Button variant="primary" onClick={handleAddNewPipeline}>
+                        Add New Pipeline
+                    </Button>
+                </div>
                 <Table bordered hover>
                     <thead>
                         <tr>
@@ -147,7 +157,7 @@ const PipelinePage: React.FC = () => {
                                 <td>{index + 1}</td>
                                 <td>{pipeline.name}</td>
                                 <td>{pipeline.on}</td>
-                                <td>{pipeline.refs.join(', ')}</td>
+                                <td>{pipeline.refs?.join(', ')}</td>
                                 <td>{pipeline.last_execution_status}</td>
                                 <td>
                                     <Button

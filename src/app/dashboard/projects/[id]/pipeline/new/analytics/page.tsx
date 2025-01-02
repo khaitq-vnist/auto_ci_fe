@@ -1,6 +1,6 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react';
 import { Card, Container, Row, Col, Spinner, ListGroup, Button } from 'react-bootstrap';
 
@@ -13,6 +13,7 @@ const AnalysisTab: React.FC = () => {
     const router = useRouter();
     const [analysis, setAnalysis] = useState<AnalysisResult | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
+    const params = useParams();
 
     useEffect(() => {
         const fetchAnalysis = async () => {
@@ -48,13 +49,14 @@ const AnalysisTab: React.FC = () => {
         );
     }
     const handleNextClick = () => {
-        router.push('/dashboard/pipeline')
+        const { id } = params;
+        router.push(`/dashboard/projects/${id}/pipeline/pipeline_new`);
         // Add navigation logic or additional functionality here
     };
 
     return (
         <Container>
-             <Row className="p-3 border-bottom align-items-center">
+            <Row className="p-3 border-bottom align-items-center">
                 <Col>
                     <h5 className="m-0">Analysis</h5>
                 </Col>

@@ -79,13 +79,6 @@ const AddNewIntegrationModal = ({ show, onClose, onSave }: AddNewIntegrationModa
             <div className="d-flex">
 
               <Button
-                variant={formData.type === GITLAB_TYPE ? 'primary' : 'outline-primary'}
-                onClick={() => handleTypeChange(GITLAB_TYPE)}
-                className="me-2"
-              >
-                GitLab
-              </Button>
-              <Button
                 variant={formData.type === GITHUB_TYPE ? 'primary' : 'outline-primary'}
                 onClick={() => handleTypeChange(GITHUB_TYPE)}
               >
@@ -127,6 +120,9 @@ const AddNewIntegrationModal = ({ show, onClose, onSave }: AddNewIntegrationModa
               placeholder="Enter personal token"
               required
             />
+            <Form.Text className="text-muted">
+              Need help? <a href="https://github.com/settings/tokens/new?description=AutoCI&scopes=repo" target="_blank" rel="noopener noreferrer">Generate your personal token here</a>.
+            </Form.Text>
           </Form.Group>
         </Form>
       </Modal.Body>

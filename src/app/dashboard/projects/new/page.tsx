@@ -84,6 +84,11 @@ const CreateProjectPage: React.FC = () => {
                 }
                 const data = resp.data;
                 if (data && data.data) {
+                    if (data.data.length === 0) {
+                        toast.error("No integrations available. Please create a new integration first.");
+                        router.push("/dashboard/integration");
+                        return;
+                    }
                     const integrationData = data.data.map((item: any) => ({
                         id: item.id,
                         name: item.integration_name,
@@ -109,6 +114,7 @@ const CreateProjectPage: React.FC = () => {
                 setLoadingRepositories(true);
                 const data = await fetchRepositories(selectedIntegration.id);
                 console.log("repos: ", data)
+
                 setRepositories(data);
                 setLoadingRepositories(false);
             };
@@ -155,9 +161,6 @@ const CreateProjectPage: React.FC = () => {
                     >
                         <Nav.Item>
                             <Nav.Link eventKey="GITHUB">GITHUB</Nav.Link>
-                        </Nav.Item>
-                        <Nav.Item>
-                            <Nav.Link eventKey="GITLAB">GITLAB</Nav.Link>
                         </Nav.Item>
                     </Nav>
                 </div>

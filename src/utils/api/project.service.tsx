@@ -37,10 +37,14 @@ const createNewPipeline = (projectId: number, data: object) => {
 const deletePipeline = (projectId: number, pipelineId: number) => {
     return clientPrivateRequester.delete(`auto-ci-service/v1/projects/${projectId}/pipelines/${pipelineId}`)
 }
+const getDetailLogAction = (projectId: number, pipelineId: number, executionId: number, actionId: number) => {
+    return clientPrivateRequester.get(`/auto-ci-service/v1/projects/${projectId}/pipelines/${pipelineId}/executions/${executionId}/actions/${actionId}`)
+}
 export default {
     getAllProjects, createNewProjects,
     fetchPipelineTemplate, fetchListBranches,
     fetchListPipelines, fetchListExecutions,
     fetchExecutionDetail, runExecution,
-    createNewPipeline, deletePipeline
+    createNewPipeline, deletePipeline,
+    getDetailLogAction
 }

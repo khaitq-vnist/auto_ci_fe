@@ -51,7 +51,9 @@ const ProjectsCard = () => {
             const data = await fetchProjects();
             console.log("data: ", data)
             setProjects(data);
-            console.log("Project: ", projects)
+            if (data.length == 0) {
+                router.push("/dashboard/projects/new")
+            }
         };
         getProjects();
     }, []);
@@ -65,30 +67,6 @@ const ProjectsCard = () => {
                 <div className="d-flex justify-content-between align-items-center mb-4">
                     <h2>Projects</h2>
                     <Button variant="primary" onClick={handleOnClickButtonAddNew}>Add Project</Button>
-                </div>
-
-                <div className="d-flex mb-3">
-                    <Button variant="outline-secondary" className="me-2">
-                        <FiSearch />
-                    </Button>
-                    <Dropdown className="me-2">
-                        <Dropdown.Toggle variant="outline-secondary" id="sort-dropdown">
-                            Sort
-                        </Dropdown.Toggle>
-                        <Dropdown.Menu>
-                            <Dropdown.Item href="#">Last Updated</Dropdown.Item>
-                            <Dropdown.Item href="#">Name</Dropdown.Item>
-                        </Dropdown.Menu>
-                    </Dropdown>
-                    <Dropdown>
-                        <Dropdown.Toggle variant="outline-secondary" id="filter-dropdown">
-                            Filter: Mine
-                        </Dropdown.Toggle>
-                        <Dropdown.Menu>
-                            <Dropdown.Item href="#">All</Dropdown.Item>
-                            <Dropdown.Item href="#">Mine</Dropdown.Item>
-                        </Dropdown.Menu>
-                    </Dropdown>
                 </div>
 
                 <Row>

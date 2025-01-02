@@ -32,12 +32,18 @@ interface ConnectionServiceRequest {
     host: string;
     port: number;
     user: string;
+    db?: string;
     password: string;
+}
+interface EventRequest {
+    type: string;
+    refs: string[];
 }
 interface PipelineRequest {
     name: string;
     on: string;
-    refs: string[];
+    refs?: string[] | null;
+    events?: EventRequest[];
     stages: StageRequest[];
 }
 
@@ -48,6 +54,7 @@ const PipelineNew: React.FC = () => {
         trigger: 'Manually',
         scope: 'Branch',
         branches: [],
+        events: [],
     });
     const [pipeline, setPipeline] = useState<{ stages: StageRequest[] } | null>(null);
 
@@ -63,10 +70,18 @@ const PipelineNew: React.FC = () => {
     const handleSavePipeline = () => {
         console.log('Pipeline Settings:', settings);
         console.log('Pipeline Stages:', pipeline);
+        let events: any[] = []
+        if (settings.events.length != 0) {
+            events = settings.events.map((event: any) => ({
+                type: event,
+                refs: settings.branches?.map((branch: string) => `refs/heads/${branch}`) || []
+            }))
+        }
         const pipelineRequest: PipelineRequest = {
             name: settings.name,
             on: settings.trigger === "Manually" ? "CLICK" : settings.trigger,
-            refs: settings.branches?.map((branch: string) => `refs/heads/${branch}`),
+            refs: settings.trigger === "Manually" ? settings.branches?.map((branch: string) => `refs/heads/${branch}`) : null,
+            events: events,
             stages: (pipeline?.stages || [])
                 .filter((stage: any) => String(stage.type) == 'enabled')
                 .map((stage: any) => ({
@@ -90,6 +105,7 @@ const PipelineNew: React.FC = () => {
                                 port: service.connection.port,
                                 user: service.connection.user,
                                 password: service.connection.password,
+                                db: service.connection.db ? service.connection.db : null,
                             }
                             : null,
                     })) || [],

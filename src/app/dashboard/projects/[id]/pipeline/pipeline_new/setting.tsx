@@ -10,6 +10,7 @@ interface PipelineSettings {
     trigger: string;
     scope: string;
     branches: string[];
+    events: string[];
 }
 
 interface SettingsProps {
@@ -21,11 +22,13 @@ const Settings: React.FC<SettingsProps> = ({ settings, onUpdateSettings }) => {
     const [localSettings, setLocalSettings] = useState<PipelineSettings>({
         ...settings,
         scope: 'Branch', // Default scope to "Branch"
+        events: [], // Default events
     });
     const [branchOptions, setBranchOptions] = useState<string[]>([]);
     const [loadingBranches, setLoadingBranches] = useState<boolean>(true);
+    const eventOptions = ['PUSH']; // Hardcoded events
     const searchParams = useSearchParams();
-    const params = useParams()
+    const params = useParams();
 
     useEffect(() => {
         if (localSettings.scope === 'Branch') {
@@ -37,16 +40,12 @@ const Settings: React.FC<SettingsProps> = ({ settings, onUpdateSettings }) => {
         const updatedSettings = { ...localSettings, [key]: value };
         setLocalSettings(updatedSettings);
         onUpdateSettings(updatedSettings);
-
-        if (key === 'scope' && value === 'Branch') {
-            fetchBranches();
-        }
     };
 
     const fetchBranches = async (): Promise<void> => {
         try {
             setLoadingBranches(true);
-            const {id} = params; // Get project ID from the query parameters
+            const { id } = params; // Get project ID from the query parameters
 
             if (!id) {
                 console.error('Project ID is missing in the query parameters.');
@@ -90,10 +89,37 @@ const Settings: React.FC<SettingsProps> = ({ settings, onUpdateSettings }) => {
                     onChange={(e) => handleUpdate('trigger', e.target.value)}
                 >
                     <option value="Manually">Manually</option>
-                    <option value="On events">On events</option>
-                    <option value="On schedule">On schedule</option>
+                    <option value="EVENT">On events</option>
                 </Form.Select>
             </Form.Group>
+
+            {/* Event Selection */}
+            {localSettings.trigger === 'EVENT' && (
+                <Form.Group className="mb-4">
+                    <Form.Label className="fw-bold">Select Events</Form.Label>
+                    <Table bordered>
+                        <tbody>
+                            {eventOptions.map((event) => (
+                                <tr key={event}>
+                                    <td>
+                                        <Form.Check
+                                            type="checkbox"
+                                            label={event}
+                                            checked={localSettings.events.includes(event)}
+                                            onChange={(e) => {
+                                                const updatedEvents = e.target.checked
+                                                    ? [...localSettings.events, event]
+                                                    : localSettings.events.filter((ev) => ev !== event);
+                                                handleUpdate('events', updatedEvents);
+                                            }}
+                                        />
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </Table>
+                </Form.Group>
+            )}
 
             {/* Code Scope */}
             <Form.Group className="mb-4">
@@ -103,9 +129,6 @@ const Settings: React.FC<SettingsProps> = ({ settings, onUpdateSettings }) => {
                     onChange={(e) => handleUpdate('scope', e.target.value)}
                 >
                     <option value="Branch">Branch</option>
-                    <option value="Tag">Tag</option>
-                    <option value="Wildcard">Wildcard</option>
-                    <option value="Codeless">Codeless</option>
                 </Form.Select>
             </Form.Group>
 

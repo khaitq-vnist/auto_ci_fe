@@ -387,6 +387,17 @@ const PipelineStages: React.FC<{
                                                 <Card.Body>
                                                     {stage.services?.map((service, index) => (
                                                         <div key={index} className="mb-3">
+                                                            <Form.Group controlId={`serviceName-${index}`}>
+                                                                <Form.Label>Service Name</Form.Label>
+                                                                <Form.Control
+                                                                    type="text"
+                                                                    placeholder="Service Name"
+                                                                    value={service.type}
+                                                                    onChange={(e) => updateServiceField(index, 'version', e.target.value)}
+                                                                    className="mb-2"
+                                                                    disabled
+                                                                />
+                                                            </Form.Group>
                                                             <Form.Group controlId={`serviceVersion-${index}`}>
                                                                 <Form.Label>Service Version</Form.Label>
                                                                 <Form.Control
@@ -408,6 +419,17 @@ const PipelineStages: React.FC<{
                                                                     onChange={(e) => updateServiceField(index, 'port', e.target.value)}
                                                                     className="mb-2"
                                                                     disabled
+                                                                />
+                                                            </Form.Group>
+                                                            <Form.Group controlId={`serviceHost-${index}`}>
+                                                                <Form.Label>Service HOST</Form.Label>
+                                                                <Form.Control
+                                                                    type="text"
+                                                                    placeholder="Service Host"
+                                                                    value={service.connection.host}
+                                                                    onChange={(e) => updateServiceField(index, 'host', e.target.value)}
+                                                                    className="mb-2"
+
                                                                 />
                                                             </Form.Group>
 
